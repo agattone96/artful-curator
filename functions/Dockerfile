@@ -1,10 +1,22 @@
-FROM node:lts-alpine
+# syntax=docker/dockerfile:1
+ARG NODE_VERSION=22.13.1
+FROM node:${NODE_VERSION}-slim AS base
+WORKDIR /app
+
+# Install dependencies with cache and bind mounts for deterministic builds
+COPY --link package.json package-lock.json ./
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci --production --silent
+
+# Copy application source
+COPY --link . .
+
+# Create non-root user for security
+RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
+
 ENV NODE_ENV=production
-WORKDIR /usr/src/app
-COPY ["package.json", "package-lock.json*", "npm-shrinkwrap.json*", "./"]
-RUN npm install --production --silent && mv node_modules ../
-COPY . .
+ENV NODE_OPTIONS="--max-old-space-size=4096"
 EXPOSE 3000
-RUN chown -R node /usr/src/app
-USER node
+USER appuser
+
 CMD ["node", "index.js"]

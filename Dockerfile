@@ -1,36 +1,44 @@
-# --------- Base Build Stage ---------
-FROM node:18-alpine AS builder
+# syntax=docker/dockerfile:1
+ARG NODE_VERSION=22.13.1
 
-# Set working directory
+# --------- Build Stage ---------
+FROM node:${NODE_VERSION}-slim AS builder
 WORKDIR /app
 
-# Copy package.json and package-lock.json
-COPY package*.json ./
-
-# Install dependencies
-RUN npm install
+# Install dependencies with cache and bind mounts for deterministic builds
+COPY --link package.json package-lock.json ./
+RUN --mount=type=cache,target=/root/.npm \
+    --mount=type=bind,source=package.json,target=package.json \
+    --mount=type=bind,source=package-lock.json,target=package-lock.json \
+    npm ci
 
 # Copy the rest of the application
-COPY . .
+COPY --link . .
 
-# Build the production Next.js app
+# Build the React app for production
 RUN npm run build
 
-# --------- Production Runner Stage ---------
-FROM node:18-alpine AS runner
+# Remove dev dependencies and prune node_modules for production
+RUN npm prune --production
 
-# Set working directory
+# --------- Production Stage ---------
+FROM node:${NODE_VERSION}-slim AS final
 WORKDIR /app
 
-# Copy necessary files from builder
-COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/.next .next
-COPY --from=builder /app/public public
-COPY --from=builder /app/next.config.js .
-COPY --from=builder /app/node_modules node_modules
+# Security: create non-root user
+RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
 
-# Expose the app port
+# Copy only necessary files from builder
+COPY --from=builder /app/build ./build
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/public ./public
+
+ENV NODE_ENV=production
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+
+USER appuser
+
 EXPOSE 3000
 
-# Command to run the app
-CMD ["npm", "run", "start"]
+CMD ["npm", "start"]
