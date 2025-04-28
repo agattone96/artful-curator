@@ -1,0 +1,57 @@
+services:
+  js-artful-curator-functions:
+    build:
+      context: ./artful-curator/functions
+      dockerfile: Dockerfile
+    container_name: js-artful-curator-functions
+    restart: unless-stopped
+    init: true
+    # env_file: ./artful-curator/functions/.env  # Uncomment if .env file exists
+    ports:
+      - "3001:3000"  # Expose on a different host port to avoid conflicts
+    networks:
+      - artful-curator-net
+
+  js-artful-curator-artful-curator-functions:
+    build:
+      context: ./artful-curator/artful-curator/functions
+      dockerfile: Dockerfile
+    container_name: js-artful-curator-artful-curator-functions
+    restart: unless-stopped
+    init: true
+    # env_file: ./artful-curator/artful-curator/functions/.env  # Uncomment if .env file exists
+    ports:
+      - "3002:3000"  # Expose on a different host port to avoid conflicts
+    networks:
+      - artful-curator-net
+
+  js-artful-curator:
+    build:
+      context: ./artful-curator
+      dockerfile: Dockerfile
+    container_name: js-artful-curator
+    restart: unless-stopped
+    init: true
+    # env_file: ./artful-curator/.env  # Uncomment if .env file exists
+    ports:
+      - "8080:80"  # Nginx serves static site on port 80
+    networks:
+      - artful-curator-net
+
+  js-artful-curator-artful-curator:
+    build:
+      context: ./artful-curator/artful-curator
+      dockerfile: Dockerfile
+    container_name: js-artful-curator-artful-curator
+    restart: unless-stopped
+    init: true
+    # env_file: ./artful-curator/artful-curator/.env  # Uncomment if .env file exists
+    ports:
+      - "3003:3000"  # Expose on a different host port to avoid conflicts
+    networks:
+      - artful-curator-net
+
+# Shared network for all services
+networks:
+  artful-curator-net:
+    driver: bridge
