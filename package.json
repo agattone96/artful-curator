@@ -1,0 +1,55 @@
+{
+  "name": "artful-curator",
+  "version": "1.0.0",
+  "description": "A web application for curating and managing art collections.",
+  "main": "src/App.js",
+  "scripts": {
+    "build": "react-scripts build",
+    "start": "react-scripts start",
+    "test": "react-scripts test",
+    "test:coverage": "nyc npm test",
+    "eject": "react-scripts eject",
+    "deploy": "firebase deploy",
+    "functions": "firebase functions:shell"
+  },
+  "dependencies": {
+    "firebase": "^9.0.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "react-scripts": "5.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.0.0",
+    "eslint-plugin-react": "^7.0.0",
+    "nyc": "^15.0.0"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "keywords": [
+    "art",
+    "curation",
+    "firebase",
+    "react"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "nyc": {
+    "reporter": ["text", "html"],
+    "all": true,
+    "include": ["src/**/*.js"],
+    "exclude": ["src/index.js", "src/serviceWorker.js"]
+  }
+}
