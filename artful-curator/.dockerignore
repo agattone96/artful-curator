@@ -1,9 +1,33 @@
+# Ignore local dependencies
 node_modules
+functions/node_modules
+artful-curator/node_modules
+
+# Ignore build artifacts
 build
+dist
+
+# Ignore Docker settings themselves
 .dockerignore
 Dockerfile
+Dockerfile.dev
 docker-compose.yml
+
+# Ignore Git metadata
 .git
 .gitignore
+
+# Ignore logs and cache
 npm-debug.log
 firebase-debug.log
+yarn-error.log
+*.log
+
+# Ignore Mac system files
+.DS_Store
+
+# Ignore environment variables
+.env
+.env.local
+.env.development
+.env.production
